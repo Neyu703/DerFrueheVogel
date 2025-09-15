@@ -17,6 +17,7 @@ class Animate(pygame.sprite.Sprite):
     def setSpriteDimensions(self, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
         for image in range(spriteCount):
             subsurface = self.fullImage.subsurface((image * spriteWidth, self.spriteY, spriteWidth, spriteHeight))
+            subsurface = pygame.transform.scale2x(subsurface)
             self.images.append(pygame.transform.scale2x(subsurface))
             self.imagesFlipped.append(pygame.transform.flip(subsurface, True, False))
 
