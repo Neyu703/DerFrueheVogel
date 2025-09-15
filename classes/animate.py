@@ -1,35 +1,34 @@
 import pygame
 
-
 class Animate(pygame.sprite.Sprite):
-    def __init__(self, posX, posY, img, lastImg):
+    def __init__(self, initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
         super().__init__()
-        self.animated = True
+        self.spriteY = spriteY
         self.fullImage = pygame.image.load(img).convert_alpha()
-
         self.images = []
-        self.imagesLeft = []
-        for image in range(lastImg):
-            subsurface = self.fullImage.subsurface((image * 32, 0, 32, 32))
-            self.images.append(pygame.transform.scale2x(subsurface))
-            self.imagesLeft.append(pygame.transform.flip(subsurface, True, False))
+        self.imagesFlipped = []
+        self.setSpriteDimensions(spriteCount, spriteWidth, spriteHeight)
 
         self.imageIndex = 0
         self.image = self.images[self.imageIndex]
         self.rect = self.image.get_rect()
-        self.rect.topleft = (posX, posY)
-        self.direction = 0
+        self.rect.topleft = (initPosX, initPosY)
 
-    def update(self):
-        self.update_position()
-        if self.animated:
-            self.update_image(self.direction)
+    def setSpriteDimensions(self, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
+        for image in range(spriteCount):
+            subsurface = self.fullImage.subsurface((image * spriteWidth, self.spriteY, spriteWidth, spriteHeight))
+            self.images.append(pygame.transform.scale2x(subsurface))
+            self.imagesFlipped.append(pygame.transform.flip(subsurface, True, False))
 
-    def update_image(self, direction):
+    def update(self, direction):
         if direction == 1:
-            self.image = self.images[self.imageIndex]
+            self.cycleSprite(self.images)
         elif direction == -1:
-            self.image = self.imagesLeft[self.imageIndex]
+            self.cycleSprite(self.imagesFlipped)
+
+    def cycleSprite(self, images):
+        self.image = images[self.imageIndex]
         self.imageIndex += 1
-        if self.imageIndex >= len(self.images):
+        if self.imageIndex >= len(images):
             self.imageIndex = 0
+

@@ -1,9 +1,10 @@
-import pygame, animate
+import pygame
+from .animate import Animate
 
 
-class Worm(animate.Animate):
-    def __init__(self, x, y, img, lastImg):
-        super().__init__(x, y, img, lastImg)
+class Worm(Animate):
+    def __init__(self, initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
+        super().__init__(initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY)
         self.calc_x = self.rect.x
         self.SINGLESTEP_X = 5
 
@@ -19,3 +20,6 @@ class Worm(animate.Animate):
 
     def walk(self, direction):
         self.direction = direction
+
+    #( 0, 20) - (15,31)
+    #(16, 21) - (31,31)
