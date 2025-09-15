@@ -1,4 +1,5 @@
 import pygame
+import random
 from classes.bird import Bird
 from classes.worm import Worm
 
@@ -25,14 +26,25 @@ levelWidth = bg.get_width() * repeatImage #need this later to determine when to 
 wormColor = 16
 wormImg = f"8Bit-Worm-var{wormColor}-byImogiaGames.png"
 
+
 birdSpritePath = "assets/Bird16x16/BirdSprite.png"
-wormSpritePath = f"assets/8Bit-Worm/{wormImg}"
-
-bird = Bird(100, 100, birdSpritePath, 7, 16, 16, 17)
 birdGroup = pygame.sprite.Group()
-birdGroup.add(bird)
 
-worm = Worm(screenWidth/2, screenHeight-100, wormSpritePath, 4, 16, 6, 9)
+numberOfBirds = 5
+birdHeight = 16
+birdWidth = 16
+
+for _ in range(numberOfBirds):
+    randomX = random.randint(0, screenWidth - birdWidth)
+    randomY = random.randint(0, screenHeight - birdHeight)
+    bird = Bird(randomX, randomY, birdSpritePath, 7, birdWidth, birdHeight, 17)
+    birdGroup.add(bird)
+
+
+wormSpritePath = f"assets/8Bit-Worm/{wormImg}"
+wormWidth = 16
+wormHeight = 6
+worm = Worm(screenWidth/2 - 50, screenHeight-100, wormSpritePath, 4, wormWidth, wormHeight, 9)
 wormGroup = pygame.sprite.Group()
 wormGroup.add(worm)
 
