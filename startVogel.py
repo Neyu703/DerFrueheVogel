@@ -1,3 +1,15 @@
+#-------------------------------------------------------------------------------
+# Name:        Der Frühe Vogel
+# Purpose:     Spiel
+#
+# Author:      Stefan Güttler, Herbert Nguyen
+#
+# Created:     08.09.2025
+# Copyright:   no copyright
+# Licence:     no licence
+#-------------------------------------------------------------------------------
+
+
 # https://www.datacamp.com/de/tutorial/python-subprocess
 import subprocess
 

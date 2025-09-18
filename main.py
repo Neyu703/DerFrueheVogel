@@ -1,5 +1,17 @@
-import math
+#-------------------------------------------------------------------------------
+# Name:        Der Frühe Vogel
+# Purpose:     Spiel
+#
+# Author:      Stefan Güttler, Herbert Nguyen
+#
+# Created:     08.09.2025
+# Copyright:   no copyright
+# Licence:     no licence
+#-------------------------------------------------------------------------------
 
+
+
+import math
 import pygame
 import random
 from classes.bird import Bird
@@ -124,6 +136,8 @@ scrollSpeed = 5
 speedMult = 4
 gameLost = False
 running = True
+started = False
+
 while running:
     clock.tick(ticks)
 
@@ -207,21 +221,22 @@ while running:
         score = font.render(f"score: {birdKillCount}", True, (0, 0, 0))
         screen.blit(score, (0, 0))
     if gameLost:
-        lose1 = font.render("DU HAST VERLOREN", True, (0, 0, 0))
-        lose2 = font.render(f"Dein Score ist {birdKillCount}", True, (0, 0, 0))
-        screen.blit(lose1, (screenWidth / 2 - lose1.get_width() / 2, screenHeight / 2 - lose1.get_height() / 2))
-        screen.blit(lose2, (screenWidth / 2 - lose2.get_width() / 2 , screenHeight / 2 + 30))
+        screen.fill((0, 0, 0))
+        lose1 = font.render("DU HAST VERLOREN", True, (255, 255, 255))
+        lose2 = font.render(f"Dein Score ist {birdKillCount}", True, (255, 255, 255))
+        screen.blit(lose1, ((screenWidth - lose1.get_width()) / 2, (screenHeight - lose1.get_height()) / 2))
+        screen.blit(lose2, ((screenWidth - lose2.get_width()) / 2, (screenHeight - lose2.get_height()) / 2 + 30))
+
 
     if not gameLost:
         if random.random() < 0.05:
             if len(birdGroup) < numberOfBirds:
                 spawnBirds()
 
-
-
-    wormGroup.draw(screen)
-    birdGroup.draw(screen)
-    foodGroup.draw(screen)
+    if not gameLost:
+        wormGroup.draw(screen)
+        birdGroup.draw(screen)
+        foodGroup.draw(screen)
 
     len(birdGroup)
     if x >= levelWidth - screenWidth - 100:

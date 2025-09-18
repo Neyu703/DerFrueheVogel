@@ -1,7 +1,16 @@
+#-------------------------------------------------------------------------------
+# Name:        Der Frühe Vogel
+# Purpose:     Spiel
+#
+# Author:      Stefan Güttler, Herbert Nguyen
+#
+# Created:     08.09.2025
+# Copyright:   no copyright
+# Licence:     no licence
+#-------------------------------------------------------------------------------
+
 # Quellen
 ## Assets
-Pixel UI Pack 3 -> https://bdragon1727.itch.io/basic-pixel-health-bar-and-scroll-bar
-
 8Bit-Worm -> https://imogiagames.itch.io/8-bit-worm-monster
 
 Food Icons-> https://cazwolf.itch.io/caz-pixel-colourwheel
