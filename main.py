@@ -16,10 +16,7 @@ screenWidth = 800
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("Der frühe Vogel")
 
-sieg_font = pygame.font.SysFont("freesans",32)
-# True = mit Antialiasing
-sieg_surface = sieg_font.render("SIEG!", True, (255,255,255))
-screen.blit (sieg_surface, (100, 100) )
+
 
 def calcDelta(posX, posY, targetX, targetY):
 
@@ -85,7 +82,7 @@ numberOfBirds = 5
 birdHeight = 16
 birdWidth = 16
 birdScaleFactor = 3
-birdSpeedFactor = 1
+birdSpeedFactor = 10
 safeZone = 50 # birds have to spawn this many pixels away from the worm (they shan't kiss the worm on spawn that would be silly)
 
 def spawnBirds():
@@ -110,8 +107,9 @@ def spawnBirds():
 for _ in range(numberOfBirds):
     spawnBirds()
 
+font = pygame.font.SysFont("freesans",32)
 
-
+birdKillCount = 0
 ticks = 8
 foodDeltaY = 0
 foodDeltaX = 0
@@ -122,22 +120,29 @@ scrolling = False
 walkDirection = 0
 scrollSpeed = 5
 speedMult = 4
+gameLost = False
 running = True
 while running:
     clock.tick(ticks)
+
+    collidedBirds2Worm = pygame.sprite.groupcollide(birdGroup, wormGroup, True, True)
+    if collidedBirds2Worm:
+        gameLost = True
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                scrolling = True
-                walkDirection = 1
-            if event.key == pygame.K_LEFT:
-                scrolling = True
-                walkDirection = -1
-            if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
-                scrollSpeed = scrollSpeed * speedMult
+            if not gameLost:
+                if event.key == pygame.K_RIGHT:
+                    scrolling = True
+                    walkDirection = 1
+                if event.key == pygame.K_LEFT:
+                    scrolling = True
+                    walkDirection = -1
+                if event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
+                    scrollSpeed = scrollSpeed * speedMult
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 scrolling = False
@@ -146,17 +151,19 @@ while running:
                 scrollSpeed = scrollSpeed / speedMult
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                mouseX, mouseY = pygame.mouse.get_pos()
-                if len(foodGroup) < maxFood:
-                    food = Food(wormPosX, wormPosY, foodSpritePath, 1, foodWidth, foodHeight, scaleFactor = foodScaleFactor)
-                    foodGroup.add(food)
+                if not gameLost:
+                    mouseX, mouseY = pygame.mouse.get_pos()
+                    if len(foodGroup) < maxFood:
+                        food = Food(wormPosX, wormPosY, foodSpritePath, 1, foodWidth, foodHeight, scaleFactor = foodScaleFactor)
+                        foodGroup.add(food)
 
-                    foodDeltaX, foodDeltaY = calcDelta(wormPosX, wormPosY, mouseX, mouseY)
-                    foodDeltaX = foodDeltaX * projectileSpeedFactor
-                    foodDeltaY = foodDeltaY * projectileSpeedFactor
+                        foodDeltaX, foodDeltaY = calcDelta(wormPosX, wormPosY, mouseX, mouseY)
+                        foodDeltaX = foodDeltaX * projectileSpeedFactor
+                        foodDeltaY = foodDeltaY * projectileSpeedFactor
 
-                    food.speedX = foodDeltaX
-                    food.speedY = foodDeltaY
+                        food.speedX = foodDeltaX
+                        food.speedY = foodDeltaY
+
     if scrolling:
         x += scrollSpeed*walkDirection
         maxOffset = levelWidth - screenWidth
@@ -169,33 +176,44 @@ while running:
     for i in range(repeatImage):
         screen.blit(bg, (i*bg.get_width()-x,0))
 
+
+
     wormGroup.update(walkDirection)
+    if not gameLost:
+        for bird in birdGroup:
+            if bird.rect.centerx < screenWidth / 2:
+                direction = 1
+            else:
+                direction = -1
+            bird.update(1)
+            bird.look_at_point(worm.rect.centerx, worm.rect.centery, direction)
+            bird.move()
 
-    for bird in birdGroup:
-        if bird.rect.centerx < screenWidth / 2:
-            direction = 1
-        else:
-            direction = -1
-        bird.update(1)
-        bird.look_at_point(worm.rect.centerx, worm.rect.centery, direction)
-        bird.move()
-
-    for food in foodGroup:
-        food.update(1)
-        food.rotate(360/ticks)
-        food.move()
-        if food.rect.right < 0 or food.rect.left > screenWidth or food.rect.bottom < 0 or food.rect.top > screenHeight:
-            food.kill()
+        for food in foodGroup:
+            food.update(1)
+            food.rotate(360/ticks)
+            food.move()
+            if food.rect.right < 0 or food.rect.left > screenWidth or food.rect.bottom < 0 or food.rect.top > screenHeight:
+                food.kill()
 
 
     collidedBirds2Food = pygame.sprite.groupcollide(birdGroup, foodGroup, True, True)
+    if collidedBirds2Food:
+        birdKillCount += 1
 
-    collidedBirds2Worm = pygame.sprite.groupcollide(birdGroup, wormGroup, True, True)
+    if not gameLost:
+        score = font.render(f"score: {birdKillCount}", True, (0, 0, 0))
+        screen.blit(score, (0, 0))
+    if gameLost:
+        lose1 = font.render("DU HAST VERLOREN", True, (0, 0, 0))
+        lose2 = font.render(f"Dein Score ist {birdKillCount}", True, (0, 0, 0))
+        screen.blit(lose1, (screenWidth / 2, screenHeight / 2))
+        screen.blit(lose2, (screenWidth / 2, screenHeight / 2 + 30))
 
-
-    if random.random() < 0.05:
-        # TODO set max number of birds that are allowed to spawn
-        spawnBirds()
+    if not gameLost:
+        if random.random() < 0.05:
+            # TODO set max number of birds that are allowed to spawn
+            spawnBirds()
 
     wormGroup.draw(screen)
     birdGroup.draw(screen)
