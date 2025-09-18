@@ -56,10 +56,10 @@ levelWidth = bg.get_width() * repeatImage #need this later to determine when to 
 foodNumber = 43
 foodImg = f"colourwheel_{foodNumber}.png"
 foodSpritePath = f"assets/Food Icons/{foodImg}"
-foodWidth = 32
-foodHeight = 32
+foodWidth   = 32 # pixel width
+foodHeight  = 32 # pixel height
 foodGroup = pygame.sprite.Group()
-foodScaleFactor = 1
+foodScaleFactor = 1 # size scale
 maxFood = 3
 
 
@@ -151,7 +151,10 @@ while running:
             food.kill()
 
 
-    collidedBirds = pygame.sprite.groupcollide(birdGroup, foodGroup, True, True)
+    collidedBirds2Food = pygame.sprite.groupcollide(birdGroup, foodGroup, True, True)
+
+    collidedBirds2Worm = pygame.sprite.groupcollide(birdGroup, wormGroup, True, True)
+
 
 
     wormGroup.draw(screen)
