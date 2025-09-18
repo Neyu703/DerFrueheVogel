@@ -66,6 +66,18 @@ def calcDelta(posX, posY, targetX, targetY, inf = True):
     deltaX = targetX - posX
     deltaY = targetY - posY
 
+    if inf:
+        if deltaX > 0:
+            deltaX = 1
+        else:
+            deltaX = -1
+        if deltaY > 0:
+            deltaY = 1
+        else:
+            deltaY = -1
+
+    return deltaX, deltaY
+
     print(f"deltaX: {deltaX}, deltaY: {deltaY}")
     print("------------------")
 

@@ -17,15 +17,5 @@ class Food(Animate):
         self.image = pygame.transform.rotate(self.original_image, self.rotation_angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
-    def update_position(self):
-        self.calc_x += (self.direction * self.SINGLESTEP_X)
-        if self.calc_x < 0:
-            self.calc_x = 0
-
-        if self.calc_x > 800 - self.rect.width:
-            self.calc_x = 800 - self.rect.width
-
-        self.rect.x = round(self.calc_x)
-
-    def walk(self, direction):
-        self.direction = direction
+    def setPosition(self, x, y):
+        self.rect.topleft = (x, y)

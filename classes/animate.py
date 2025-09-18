@@ -16,6 +16,10 @@ class Animate(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (initPosX, initPosY)
 
+    def move(self, deltaX, deltaY):
+        self.rect.x += deltaX
+        self.rect.y += deltaY
+
     def setSpriteDimensions(self, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
         for image in range(spriteCount):
             subsurface = self.fullImage.subsurface((image * spriteWidth, self.spriteY, spriteWidth, spriteHeight))
