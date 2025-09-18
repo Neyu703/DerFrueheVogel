@@ -135,6 +135,43 @@ walkDirection = 0
 scrollSpeed = 5
 speedMult = 4
 gameLost = False
+
+def show_start_screen(screen, screenWidth, screenHeight):
+    helpFont = pygame.font.SysFont("Arial", 48)
+    smallHelpFont = pygame.font.SysFont("Arial", 32)
+    title = helpFont.render("Der frühe Vogel", True, (0, 0, 0))
+    controls = [
+        "Steuerung:",
+        "Pfeiltasten links/rechts - Bewegen",
+        "Umschalt - Schneller bewegen",
+        "Rechte Maustaste - Essen werfen",
+        "",
+        "Viel Glück!"
+    ]
+    control_texts = [smallHelpFont.render(line, True, (0, 0, 0)) for line in controls]
+    start_time = pygame.time.get_ticks()
+    while True:
+        screen.blit(bg, (0, 0))
+        # make a semitransparent surface for better text visibility
+        overlay = pygame.Surface((screenWidth, screenHeight))
+        overlay.set_alpha(200)  # Set transparency level (0-255)
+        overlay.fill((255, 255, 255))  # Fill with white color
+        screen.blit(overlay, (0, 0))
+        screen.blit(title, (screenWidth // 2 - title.get_width() // 2, 100))
+        for i, text in enumerate(control_texts):
+            screen.blit(text, (screenWidth // 2 - text.get_width() // 2, 200 + i * 40))
+        info = smallHelpFont.render("Beliebige Taste drücken, um das Spiel zu starten...", True, (100, 100, 100))
+        screen.blit(info, (screenWidth // 2 - info.get_width() // 2, 450))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                return
+        if pygame.time.get_ticks() - start_time > 10000:
+            return
+
+show_start_screen(screen, screenWidth, screenHeight)
 running = True
 started = False
 
