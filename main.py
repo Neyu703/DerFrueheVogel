@@ -244,10 +244,9 @@ while running:
             pygame.time.delay(3000)
             running = False
     if levelUpTime and pygame.time.get_ticks() - levelUpTime < LEVEL_UP_DISPLAY_TIME:
-        font = pygame.font.SysFont("Arial", 72)
-        levelUpText = font.render(f"Level {level}", True, (255, 255, 255))
-        textRect = levelUpText.get_rect(center=(screenWidth // 2, screenHeight // 2))
-        screen.blit(levelUpText, textRect)
+        levelUpFont = pygame.font.SysFont("Arial", 72)
+        levelUpText = levelUpFont.render(f"Level {level}", True, (255, 255, 255))
+        screen.blit(levelUpText, (screenWidth / 2 - levelUpText.get_width() / 2, screenHeight / 2 - levelUpText.get_height() / 2))
     else:
         levelUpTime = None
     pygame.display.update()
