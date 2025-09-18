@@ -1,3 +1,5 @@
+import math
+
 import pygame
 import random
 from classes.bird import Bird
@@ -14,6 +16,32 @@ screenWidth = 800
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("Der frühe Vogel")
 
+def calcDelta(posX, posY, targetX, targetY):
+
+    deltaX = targetX - posX
+    deltaY = targetY - posY
+
+    distance = math.sqrt(deltaX ** 2 + deltaY ** 2)
+
+    stepX = deltaX / distance
+    stepY = deltaY / distance
+
+    if targetX < posX:
+        stepX = abs(stepX) * -1
+    if targetX > posX:
+        stepX = abs(stepX)
+    if targetY < posY:
+        stepY = abs(stepY) * -1
+    if targetY > posY:
+        stepY = abs(stepY)
+
+
+    print(f"stepX = {stepX} stepY = {stepY}")
+    print("------------------")
+
+    return stepX, stepY
+
+
 # start at level 1, needs to be increased at some point to load the other background images
 level = 1
 bg = pygame.image.load("assets/levels/nature_"+str(level)+"/origbig.png").convert_alpha()
@@ -24,30 +52,15 @@ bg = pygame.transform.scale(bg, (targetWidth, targetHeight))
 repeatImage = 7 #repeat background this many times (higher number = bigger level)
 levelWidth = bg.get_width() * repeatImage #need this later to determine when to stop sidescrolling
 
+
 foodNumber = 43
 foodImg = f"colourwheel_{foodNumber}.png"
 foodSpritePath = f"assets/Food Icons/{foodImg}"
 foodWidth = 32
 foodHeight = 32
-food = Food(100, 100, foodSpritePath, 1, foodWidth, foodHeight)
 foodGroup = pygame.sprite.Group()
-foodGroup.add(food)
-
-
-birdSpritePath = "assets/Bird16x16/BirdSprite.png"
-birdGroup = pygame.sprite.Group()
-numberOfBirds = 5
-birdHeight = 16
-birdWidth = 16
-for _ in range(numberOfBirds):
-    randomX = random.randint(0, screenWidth - birdWidth)
-    randomY = random.randint(0, screenHeight - birdHeight)
-    if randomX < screenWidth / 2:
-        flipHorzontally = True
-    else:
-        flipHorzontally = False
-    bird = Bird(randomX, randomY, birdSpritePath, 7, birdWidth, birdHeight, flipHorzontally, 17)
-    birdGroup.add(bird)
+foodScaleFactor = 1
+maxFood = 3
 
 
 wormColor = 16
@@ -57,32 +70,41 @@ wormWidth = 16
 wormHeight = 6
 wormPosX = screenWidth / 2
 wormPosY = screenHeight -100
-worm = Worm(wormPosX, wormPosY, wormSpritePath, 4, wormWidth, wormHeight, 9)
+wormScaleFactor = 5
+worm = Worm(wormPosX, wormPosY, wormSpritePath, 4, wormWidth, wormHeight, 9, scaleFactor = wormScaleFactor)
 wormGroup = pygame.sprite.Group()
 wormGroup.add(worm)
 
-def calcDelta(posX, posY, targetX, targetY, inf = True):
+birdSpritePath = "assets/Bird16x16/BirdSprite.png"
+birdGroup = pygame.sprite.Group()
+numberOfBirds = 5
+birdHeight = 16
+birdWidth = 16
+birdScaleFactor = 3
+birdSpeedFactor = 1
+for _ in range(numberOfBirds):
+    randomX = random.randint(0, screenWidth - birdWidth)
+    randomY = random.randint(0, screenHeight - birdHeight)
+    if randomX < screenWidth / 2:
+        flipHorzontally = True
+    else:
+        flipHorzontally = False
+    bird = Bird(randomX, randomY, birdSpritePath, 7, birdWidth, birdHeight, flipHorzontally, 17, scaleFactor= birdScaleFactor)
+    birdGroup.add(bird)
+    birdDeltaX, birdDeltaY = calcDelta(randomX, randomY, wormPosX, wormPosY)
+    birdDeltaX = birdDeltaX * birdSpeedFactor
+    birdDeltaY = birdDeltaY * birdSpeedFactor
 
-    deltaX = targetX - posX
-    deltaY = targetY - posY
+    bird.speedX = birdDeltaX
+    bird.speedY = birdDeltaY
 
-    if inf:
-        if deltaX > 0:
-            deltaX = 1
-        else:
-            deltaX = -1
-        if deltaY > 0:
-            deltaY = 1
-        else:
-            deltaY = -1
 
-    return deltaX, deltaY
 
-    print(f"deltaX: {deltaX}, deltaY: {deltaY}")
-    print("------------------")
 
 ticks = 8
-
+foodDeltaY = 0
+foodDeltaX = 0
+projectileSpeedFactor = 15
 running = True
 while running:
     clock.tick(ticks)
@@ -93,7 +115,17 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouseX, mouseY = pygame.mouse.get_pos()
-                calcDelta(wormPosX, wormPosY, mouseX, mouseY, True)
+                if len(foodGroup) < maxFood:
+                    food = Food(wormPosX, wormPosY, foodSpritePath, 1, foodWidth, foodHeight, scaleFactor = foodScaleFactor)
+                    foodGroup.add(food)
+
+                    foodDeltaX, foodDeltaY = calcDelta(wormPosX, wormPosY, mouseX, mouseY)
+                    foodDeltaX = foodDeltaX * projectileSpeedFactor
+                    foodDeltaY = foodDeltaY * projectileSpeedFactor
+
+                    food.speedX = foodDeltaX
+                    food.speedY = foodDeltaY
+
 
     
     for i in range(repeatImage):
@@ -109,15 +141,23 @@ while running:
             direction = -1
         bird.update(1)
         bird.look_at_point(worm.rect.centerx, worm.rect.centery, direction)
+        bird.move()
 
     for food in foodGroup:
         food.update(1)
         food.rotate(360/ticks)
+        food.move()
+        if food.rect.right < 0 or food.rect.left > screenWidth or food.rect.bottom < 0 or food.rect.top > screenHeight:
+            food.kill()
+
+
+    collidedBirds = pygame.sprite.groupcollide(birdGroup, foodGroup, True, True)
+
 
     wormGroup.draw(screen)
     birdGroup.draw(screen)
     foodGroup.draw(screen)
 
-
+    len(birdGroup)
     pygame.display.update()
 pygame.quit()

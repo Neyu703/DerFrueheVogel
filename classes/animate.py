@@ -1,30 +1,34 @@
 import pygame
 
 class Animate(pygame.sprite.Sprite):
-    def __init__(self, initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY = 0, flipHorzontally=False):
+    def __init__(self, initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY = 0, flipHorzontally=False, scaleFactor = 1.0):
         super().__init__()
-        self.flipHorzontally = flipHorzontally
         self.spriteY = spriteY
         self.fullImage = pygame.image.load(img).convert_alpha()
         self.images = []
         self.imagesFlipped = []
+        self.scaleFactor = scaleFactor
+        self.flipHorzontally = flipHorzontally
         self.setSpriteDimensions(spriteCount, spriteWidth, spriteHeight)
 
+        self.speedX = 0
+        self.speedY = 0
         self.imageIndex = 0
         self.image = self.images[self.imageIndex]
         self.base_image = self.image.copy()
         self.rect = self.image.get_rect()
         self.rect.topleft = (initPosX, initPosY)
 
-    def move(self, deltaX, deltaY):
-        self.rect.x += deltaX
-        self.rect.y += deltaY
+    def move(self):
+        self.rect.x += self.speedX
+        self.rect.y += self.speedY
 
     def setSpriteDimensions(self, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
         for image in range(spriteCount):
             subsurface = self.fullImage.subsurface((image * spriteWidth, self.spriteY, spriteWidth, spriteHeight))
 
-            scaled_subsurface = pygame.transform.scale2x(subsurface)
+
+            scaled_subsurface = pygame.transform.scale(subsurface, (spriteWidth * self.scaleFactor, spriteHeight * self.scaleFactor))
 
             if self.flipHorzontally:
                 self.images.append(pygame.transform.flip(scaled_subsurface, False, self.flipHorzontally))

@@ -3,8 +3,8 @@ from .animate import Animate
 
 
 class Food(Animate):
-    def __init__(self, initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY = 0):
-        super().__init__(initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY)
+    def __init__(self, initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY = 0, scaleFactor = 1):
+        super().__init__(initPosX, initPosY, img, spriteCount, spriteWidth, spriteHeight, spriteY,False,  scaleFactor)
         self.calc_x = self.rect.x
         self.SINGLESTEP_X = 5
         self.rotation_angle = 0
@@ -18,4 +18,4 @@ class Food(Animate):
         self.rect = self.image.get_rect(center=self.rect.center)
 
     def setPosition(self, x, y):
-        self.rect.topleft = (x, y)
+        self.rect.center = (x,y)
