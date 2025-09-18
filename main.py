@@ -16,6 +16,11 @@ screenWidth = 800
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 pygame.display.set_caption("Der frühe Vogel")
 
+sieg_font = pygame.font.SysFont("freesans",32)
+# True = mit Antialiasing
+sieg_surface = sieg_font.render("SIEG!", True, (255,255,255))
+screen.blit (sieg_surface, (100, 100) )
+
 def calcDelta(posX, posY, targetX, targetY):
 
     deltaX = targetX - posX
