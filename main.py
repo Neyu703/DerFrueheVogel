@@ -46,12 +46,14 @@ def calcDelta(posX, posY, targetX, targetY):
 
 # start at level 1, needs to be increased at some point to load the other background images
 level = 1
+levelUpTime = None
+LEVEL_UP_DISPLAY_TIME = 2000 # milliseconds
 bg = pygame.image.load("assets/levels/nature_"+str(level)+"/origbig.png").convert_alpha()
 targetHeight = screenHeight
 scale = targetHeight / bg.get_height()
 targetWidth = bg.get_width() * scale
 bg = pygame.transform.scale(bg, (targetWidth, targetHeight))
-repeatImage = 7 #repeat background this many times (higher number = bigger level)
+repeatImage = 3 #repeat background this many times (higher number = bigger level)
 levelWidth = bg.get_width() * repeatImage #need this later to determine when to stop sidescrolling
 
 foodNumber = 43
@@ -82,11 +84,11 @@ numberOfBirds = 5
 birdHeight = 16
 birdWidth = 16
 birdScaleFactor = 3
-birdSpeedFactor = 10
+birdSpeedFactor = 1
 safeZone = 50 # birds have to spawn this many pixels away from the worm (they shan't kiss the worm on spawn that would be silly)
 
 def spawnBirds():
-    #establish the safe zone, define randomX for for two cases: birds that spawn to the left and ones that spawn to the right
+    #establish the safe zone, define randomX for two cases: birds that spawn to the left and ones that spawn to the right
     if random.choice([True, False]):
         randomX = random.randint(0, int(wormPosX - safeZone - birdWidth)) #birds that spawn to the left of the worm
     else:
@@ -207,18 +209,46 @@ while running:
     if gameLost:
         lose1 = font.render("DU HAST VERLOREN", True, (0, 0, 0))
         lose2 = font.render(f"Dein Score ist {birdKillCount}", True, (0, 0, 0))
-        screen.blit(lose1, (screenWidth / 2, screenHeight / 2))
-        screen.blit(lose2, (screenWidth / 2, screenHeight / 2 + 30))
+        screen.blit(lose1, (screenWidth / 2 - lose1.get_width() / 2, screenHeight / 2 - lose1.get_height() / 2))
+        screen.blit(lose2, (screenWidth / 2 - lose2.get_width() / 2 , screenHeight / 2 + 30))
 
     if not gameLost:
         if random.random() < 0.05:
-            # TODO set max number of birds that are allowed to spawn
-            spawnBirds()
+            if len(birdGroup) < numberOfBirds:
+                spawnBirds()
+
+
 
     wormGroup.draw(screen)
     birdGroup.draw(screen)
     foodGroup.draw(screen)
 
     len(birdGroup)
+    if x >= levelWidth - screenWidth - 100:
+        level += 1
+        if level < 8:
+            bg = pygame.image.load("assets/levels/nature_"+str(level)+"/origbig.png").convert_alpha()
+            scale = targetHeight / bg.get_height()
+            targetWidth = bg.get_width() * scale
+            bg = pygame.transform.scale(bg, (targetWidth, targetHeight))
+            levelWidth = bg.get_width() * repeatImage
+            x = 0
+            levelUpTime = pygame.time.get_ticks()
+        else: # max level reached
+            level = 7
+            screen.fill((0,0,0))
+            font = pygame.font.SysFont("Arial", 72)
+            levelUpText = font.render(f"You win!", True, (255, 255, 255))
+            screen.blit(levelUpText, (screenWidth / 2 - levelUpText.get_width() / 2, screenHeight / 2 - levelUpText.get_height() / 2))
+            pygame.display.update()
+            pygame.time.delay(3000)
+            running = False
+    if levelUpTime and pygame.time.get_ticks() - levelUpTime < LEVEL_UP_DISPLAY_TIME:
+        font = pygame.font.SysFont("Arial", 72)
+        levelUpText = font.render(f"Level {level}", True, (255, 255, 255))
+        textRect = levelUpText.get_rect(center=(screenWidth // 2, screenHeight // 2))
+        screen.blit(levelUpText, textRect)
+    else:
+        levelUpTime = None
     pygame.display.update()
 pygame.quit()
